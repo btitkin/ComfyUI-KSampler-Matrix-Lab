@@ -18,6 +18,20 @@ The node runs each selected sampler/scheduler pair sequentially with the same mo
 - Error placeholder cells when `continue_on_error` is enabled.
 - Safety limit for maximum combinations.
 
+## Screenshots
+
+### Node
+
+![KSampler Matrix Lab node](assets/ksampler-matrix-lab-node.png)
+
+### Example Workflow
+
+![Example workflow](assets/ksampler-matrix-lab-workflow.png)
+
+### Output Grid
+
+![Output grid](assets/ksampler-matrix-lab-output-grid.png)
+
 ## Installation
 
 Clone this repository into your ComfyUI `custom_nodes` directory:
