@@ -30,7 +30,7 @@ The node runs each selected sampler/scheduler pair sequentially with the same mo
 
 ### Output Grid
 
-![Output grid](assets/ksampler-matrix-lab-output-grid.png)
+![Output grid](assets/ksampler-matrix-lab-output-grid.jpg)
 
 ## Installation
 
