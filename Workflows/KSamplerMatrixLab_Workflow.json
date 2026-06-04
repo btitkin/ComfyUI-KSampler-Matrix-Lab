@@ -1,0 +1,459 @@
+{
+  "id": "8d8165c3-8da4-445d-b617-c8c245189557",
+  "revision": 0,
+  "last_node_id": 11,
+  "last_link_id": 19,
+  "nodes": [
+    {
+      "id": 2,
+      "type": "CLIPLoader",
+      "pos": [
+        -1244.9397992099694,
+        1276.267068793239
+      ],
+      "size": [
+        390,
+        120
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            18,
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.8.2",
+        "models": [
+          {
+            "name": "qwen_3_8b_fp8mixed.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/flux2-klein-9B/resolve/main/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors",
+            "directory": "text_encoders"
+          }
+        ],
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        "qwen_3_8b_fp8mixed.safetensors",
+        "flux2",
+        "default"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "EmptyLatentImage",
+      "pos": [
+        156.51598811120022,
+        1738.4127867386487
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        832,
+        1216,
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "type": "VAELoader",
+      "pos": [
+        31.763390481797494,
+        1905.7833895787114
+      ],
+      "size": [
+        390,
+        84
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.8.2",
+        "models": [
+          {
+            "name": "flux2-vae.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors",
+            "directory": "vae"
+          }
+        ],
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        "flux2-vae.safetensors"
+      ]
+    },
+    {
+      "id": 1,
+      "type": "UNETLoader",
+      "pos": [
+        -1244.9926079217273,
+        1116.42282857387
+      ],
+      "size": [
+        390,
+        90
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.8.2",
+        "models": [
+          {
+            "name": "flux-2-klein-base-9b-fp8.safetensors",
+            "url": "https://huggingface.co/black-forest-labs/FLUX.2-klein-base-9b-fp8/resolve/main/flux-2-klein-base-9b-fp8.safetensors",
+            "directory": "diffusion_models"
+          }
+        ],
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        "flux2Klein9bFp8_fp8.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 9,
+      "type": "CLIPTextEncode",
+      "pos": [
+        31.2569133756446,
+        1482.3100633485442
+      ],
+      "size": [
+        400,
+        200
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 19
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "title": "Negative",
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 8,
+      "type": "CLIPTextEncode",
+      "pos": [
+        30.16796327214855,
+        1214.4283378885145
+      ],
+      "size": [
+        400,
+        200
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "title": "Positive",
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "Face\nAn adult 20-year-old Colombian Latina \nFace is oval with soft structure,\n\nEyebrows are thick, straight, slightly messy, natural growth, not shaped, not cleaned.\n\nEyes are medium size, almond-shaped, slightly hooded, not wide open, no lifted look.\n\nNose is small with a soft rounded tip, slightly wider base, not sharp, not refined.\n\nLips are full with a heavier lower lip, natural shape, not defined, not overlined.\n\nSkin is medium tan, natural tone, slightly matte, not glowing, not glossy, not beauty styled.\n\nSmall thin hoop nose ring in the right nostril.\n\nFace looks natural, unstyled, not model-like, not glamour, not perfect, real facial proportions.\n\n\nHair\nShe has long, sleek, pin-straight black hair with a clean center part.\nHer hair falls smoothly around her face and shoulders with a natural glossy finish.\n\nExpression\nHer expression is cold, seductive, calm, and self-assured.\nHer lips are slightly parted in a relaxed pout.\nHer gaze feels direct, heavy-lidded, street-smart, and difficult to impress.\n\nBody\nHer body is athletic with an exaggerated hourglass shape, but appears natural in posture and not staged.\n\nHer hips are wide and her thighs are full, with natural softness and slight irregularity in contour.\n\nHer waist is narrow but not unnaturally tight.\n\nHer chest is large and augmented with big natural breasts \n\nmedium warm brown latina Colombian skin tone, naturally even pigmentation, consistent tone across the entire body. No tan lines, no bikini tan.\n\nHer overall physique looks like a real person, not posed, not professionally presented.\n\n\nClothes\nShe wears very short fitted blue denim shorts with realistic fabric texture, visible seams, folds, and slight wear.\nShe wears a bikini top patterned with the Brazilian flag, using green, yellow, and blue colors.\nThe bikini top has a flattering fitted cut and realistic fabric tension.\n\nPose / Action\nShe is sitting casually on a low concrete rooftop ledge in a Brazilian favela at night.\nShe leans back on one hand for support, with her torso elongated, her back slightly arched, and her hips angled toward the camera.\nOne leg is bent while the other hangs lower in a relaxed position.\nHer pose feels effortless, provocative, and confident.\n\nEnvironment\nThe scene takes place on a rooftop in a Brazilian favela at night.\nBehind her are tightly stacked concrete homes, exposed brick walls, graffiti, rooftop water tanks, satellite dishes, tangled electrical wires, narrow alleyways, glowing windows, and distant city lights.\nThe environment feels raw, gritty, lived-in, and atmospheric.\n\nLighting / Camera\nThe image is photographed at night using direct on-camera flash.\nThe flash is harsh and frontal, creating bright highlights on her skin and strong contrast against the dark background.\nThe woman appears crisp and sharply detailed while the favela remains clearly visible behind her.\nThe image has the look of a raw nightlife portrait, photographed with a realistic 50mm lens, three-quarter body framing, vertical composition, photorealistic anatomy, and natural skin detail.\n"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "KSamplerMatrixLab",
+      "pos": [
+        711.8805408941868,
+        1100.288026089966
+      ],
+      "size": [
+        270,
+        1166
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 17
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 7
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 9
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 10
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "grid_image",
+          "type": "IMAGE",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerMatrixLab"
+      },
+      "widgets_values": [
+        29887734876397,
+        "randomize",
+        8,
+        1,
+        1,
+        "euler",
+        "lcm",
+        "deis",
+        "euler_flow",
+        "heun_flow",
+        "dpmpp_3m_sde_gpu",
+        "dpmpp_2m_sde_gpu",
+        "supreme",
+        "euler_ancestral",
+        "simple",
+        "sgm_uniform",
+        "zimage_turbo",
+        "exponential",
+        "ddim_uniform",
+        "bong_tangent",
+        "linear_quadratic",
+        "kl_optimal",
+        "beta57",
+        "same_seed_for_all",
+        1,
+        22,
+        10,
+        72,
+        180,
+        "white",
+        true,
+        true,
+        100,
+        true,
+        100
+      ]
+    },
+    {
+      "id": 11,
+      "type": "PreviewImage",
+      "pos": [
+        1148.2866581416445,
+        1099.2675050435573
+      ],
+      "size": [
+        586.4129170279989,
+        686.0355896418848
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 13
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    }
+  ],
+  "links": [
+    [
+      7,
+      8,
+      0,
+      7,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      9,
+      9,
+      0,
+      7,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      10,
+      6,
+      0,
+      7,
+      3,
+      "LATENT"
+    ],
+    [
+      11,
+      3,
+      0,
+      7,
+      4,
+      "VAE"
+    ],
+    [
+      13,
+      7,
+      0,
+      11,
+      0,
+      "IMAGE"
+    ],
+    [
+      17,
+      1,
+      0,
+      7,
+      0,
+      "MODEL"
+    ],
+    [
+      18,
+      2,
+      0,
+      8,
+      0,
+      "CLIP"
+    ],
+    [
+      19,
+      2,
+      0,
+      9,
+      0,
+      "CLIP"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.9229599817706413,
+      "offset": [
+        1028.9801016231872,
+        -895.579296297689
+      ]
+    },
+    "frontendVersion": "1.41.21"
+  },
+  "version": 0.4
+}
