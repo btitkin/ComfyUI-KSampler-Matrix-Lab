@@ -106,6 +106,17 @@ Connect:
 
 `Model Matrix Lab` compares installed models using the same generation settings and prompt text.
 
+## Screenshots
+
+### Node
+
+![KSampler Matrix Lab Model node](assets/ksampler-matrix-lab-model-node.png)
+
+
+### Output Grid
+
+![Output grid](assets/ksampler-matrix-lab-model-grid.jpg)
+
 The node scans:
 
 ```text
