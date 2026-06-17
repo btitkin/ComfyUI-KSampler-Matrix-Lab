@@ -1,8 +1,11 @@
 # ComfyUI KSampler Matrix Lab
 
-ComfyUI KSampler Matrix Lab is a custom node for comparing multiple sampler and scheduler combinations in one labeled image grid.
+ComfyUI KSampler Matrix Lab provides two custom nodes for visual benchmark grids:
 
-The node runs each selected sampler/scheduler pair sequentially with the same model, conditioning, latent, VAE, seed, steps, CFG, and denoise settings. It then decodes the results and returns one final `IMAGE` output that can be connected to `Preview Image` or `Save Image`.
+- `KSampler Matrix Lab` compares sampler and scheduler combinations with one model.
+- `Model Matrix Lab` compares multiple installed models with one sampler and scheduler.
+
+Both nodes run tests sequentially and return one labeled `IMAGE` output that can be connected to `Preview Image` or `Save Image`.
 
 ## Features
 
@@ -17,6 +20,10 @@ The node runs each selected sampler/scheduler pair sequentially with the same mo
 - Top run header with model, VAE, CLIP, steps, CFG, and denoise metadata.
 - Error placeholder cells when `continue_on_error` is enabled.
 - Safety limit for maximum combinations.
+- Compare up to 20 checkpoints or standalone diffusion models.
+- Automatically populated model dropdowns from local ComfyUI model folders.
+- Shared prompt, sampler, scheduler, seed, steps, CFG, denoise, and latent for model comparisons.
+- Configurable model grid column count.
 
 ## Screenshots
 
@@ -43,12 +50,13 @@ git clone https://github.com/btitkin/ComfyUI-KSampler-Matrix-Lab.git
 
 Restart ComfyUI after installation.
 
-## Node
+## Nodes
 
-The node appears as:
+The package adds:
 
 ```text
 KSampler Matrix Lab
+Model Matrix Lab
 ```
 
 Category:
@@ -63,7 +71,17 @@ Output:
 IMAGE
 ```
 
-## Basic Workflow
+## Included Workflow
+
+The example workflow contains ready-to-use setups for both nodes:
+
+```text
+Workflows/KSamplerMatrixLab_Workflow.json
+```
+
+Drag the JSON file into ComfyUI or use `Workflow > Open` to load it.
+
+## KSampler Matrix Lab Workflow
 
 Use the node with a standard ComfyUI generation workflow:
 
@@ -83,6 +101,53 @@ Connect:
 - negative conditioning to `negative`
 - latent to `latent_image`
 - `VAE` to `vae`
+
+## Model Matrix Lab
+
+`Model Matrix Lab` compares installed models using the same generation settings and prompt text.
+
+The node scans:
+
+```text
+ComfyUI/models/checkpoints
+ComfyUI/models/unet
+ComfyUI/models/diffusion_models
+```
+
+It provides model slots:
+
+```text
+model_01 ... model_20
+```
+
+Set unused slots to `None`. Model choices are labeled as either:
+
+```text
+checkpoint | filename
+diffusion | filename
+```
+
+Checkpoint selections use their embedded CLIP and VAE when available. Standalone diffusion models require compatible external `CLIP` and `VAE` connections. These optional connections are also used as fallbacks when a checkpoint does not contain its own CLIP or VAE.
+
+Use the text fields inside the node for the positive and negative prompts. This allows every checkpoint to encode the same text with its own text encoder.
+
+Connect:
+
+- `LATENT` to `latent_image`
+- a compatible external `CLIP` to the optional `clip` input when required
+- a compatible external `VAE` to the optional `vae` input when required
+
+All selected models use the same:
+
+- latent,
+- seed,
+- sampler,
+- scheduler,
+- steps,
+- CFG,
+- denoise.
+
+The output is a configurable model comparison grid with the model source and filename above each cell. The optional top header shows the shared sampler, scheduler, steps, CFG, and denoise settings.
 
 ## Sampler and Scheduler Selection
 
@@ -141,9 +206,9 @@ Uses `seed + cell_index` for each cell. This is useful for quick variation previ
 
 ## Error Handling
 
-When `continue_on_error` is enabled, a failed sampler/scheduler combination produces an error placeholder cell and the rest of the matrix continues.
+When `continue_on_error` is enabled, a failed sampler/scheduler combination or model produces an error placeholder cell and the rest of the matrix continues.
 
-When disabled, the node stops on the first failed combination.
+When disabled, the node stops on the first failed test.
 
 ## Notes
 

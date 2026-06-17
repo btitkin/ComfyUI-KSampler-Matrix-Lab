@@ -1,139 +1,9 @@
 {
   "id": "8d8165c3-8da4-445d-b617-c8c245189557",
   "revision": 0,
-  "last_node_id": 11,
-  "last_link_id": 19,
+  "last_node_id": 17,
+  "last_link_id": 23,
   "nodes": [
-    {
-      "id": 2,
-      "type": "CLIPLoader",
-      "pos": [
-        -1244.9397992099694,
-        1276.267068793239
-      ],
-      "size": [
-        390,
-        120
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": [
-            18,
-            19
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CLIPLoader",
-        "cnr_id": "comfy-core",
-        "ver": "0.8.2",
-        "models": [
-          {
-            "name": "qwen_3_8b_fp8mixed.safetensors",
-            "url": "https://huggingface.co/Comfy-Org/flux2-klein-9B/resolve/main/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors",
-            "directory": "text_encoders"
-          }
-        ],
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65
-      },
-      "widgets_values": [
-        "qwen_3_8b_fp8mixed.safetensors",
-        "flux2",
-        "default"
-      ]
-    },
-    {
-      "id": 6,
-      "type": "EmptyLatentImage",
-      "pos": [
-        156.51598811120022,
-        1738.4127867386487
-      ],
-      "size": [
-        270,
-        106
-      ],
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            10
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "EmptyLatentImage"
-      },
-      "widgets_values": [
-        832,
-        1216,
-        1
-      ]
-    },
-    {
-      "id": 3,
-      "type": "VAELoader",
-      "pos": [
-        31.763390481797494,
-        1905.7833895787114
-      ],
-      "size": [
-        390,
-        84
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "VAE",
-          "type": "VAE",
-          "links": [
-            11
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "VAELoader",
-        "cnr_id": "comfy-core",
-        "ver": "0.8.2",
-        "models": [
-          {
-            "name": "flux2-vae.safetensors",
-            "url": "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors",
-            "directory": "vae"
-          }
-        ],
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65
-      },
-      "widgets_values": [
-        "flux2-vae.safetensors"
-      ]
-    },
     {
       "id": 1,
       "type": "UNETLoader",
@@ -146,8 +16,8 @@
         90
       ],
       "flags": {},
-      "order": 3,
-      "mode": 0,
+      "order": 0,
+      "mode": 4,
       "inputs": [],
       "outputs": [
         {
@@ -194,8 +64,8 @@
         200
       ],
       "flags": {},
-      "order": 5,
-      "mode": 0,
+      "order": 8,
+      "mode": 4,
       "inputs": [
         {
           "name": "clip",
@@ -232,8 +102,8 @@
         200
       ],
       "flags": {},
-      "order": 4,
-      "mode": 0,
+      "order": 7,
+      "mode": 4,
       "inputs": [
         {
           "name": "clip",
@@ -262,16 +132,16 @@
       "id": 7,
       "type": "KSamplerMatrixLab",
       "pos": [
-        711.8805408941868,
-        1100.288026089966
+        730,
+        1120
       ],
       "size": [
         270,
         1166
       ],
       "flags": {},
-      "order": 6,
-      "mode": 0,
+      "order": 10,
+      "mode": 4,
       "inputs": [
         {
           "name": "model",
@@ -312,7 +182,7 @@
         "Node name for S&R": "KSamplerMatrixLab"
       },
       "widgets_values": [
-        29887734876397,
+        489677761671689,
         "randomize",
         8,
         1,
@@ -350,19 +220,245 @@
       ]
     },
     {
+      "id": 6,
+      "type": "EmptyLatentImage",
+      "pos": [
+        156.51598811120022,
+        1738.4127867386487
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        832,
+        1216,
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "type": "VAELoader",
+      "pos": [
+        31.763390481797494,
+        1905.7833895787114
+      ],
+      "size": [
+        390,
+        84
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.8.2",
+        "models": [
+          {
+            "name": "flux2-vae.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors",
+            "directory": "vae"
+          }
+        ],
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        "flux2-vae.safetensors"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "CLIPLoader",
+      "pos": [
+        -1244.9397992099694,
+        1276.267068793239
+      ],
+      "size": [
+        390,
+        120
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            18,
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.8.2",
+        "models": [
+          {
+            "name": "qwen_3_8b_fp8mixed.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/flux2-klein-9B/resolve/main/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors",
+            "directory": "text_encoders"
+          }
+        ],
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        "qwen_3_8b_fp8mixed.safetensors",
+        "flux2",
+        "default"
+      ]
+    },
+    {
+      "id": 14,
+      "type": "VAELoader",
+      "pos": [
+        -43.766305877719745,
+        2714.740117789898
+      ],
+      "size": [
+        390,
+        84
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            21
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.8.2",
+        "models": [
+          {
+            "name": "flux2-vae.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors",
+            "directory": "vae"
+          }
+        ],
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        "ae.safetensors"
+      ]
+    },
+    {
+      "id": 15,
+      "type": "CLIPLoader",
+      "pos": [
+        -45.2585223629422,
+        2534.460362293897
+      ],
+      "size": [
+        390,
+        120
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            22
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.8.2",
+        "models": [
+          {
+            "name": "qwen_3_8b_fp8mixed.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/flux2-klein-9B/resolve/main/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors",
+            "directory": "text_encoders"
+          }
+        ],
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        "Z-Image_qwen_3_4b.safetensors",
+        "qwen_image",
+        "default"
+      ]
+    },
+    {
       "id": 11,
       "type": "PreviewImage",
       "pos": [
-        1148.2866581416445,
-        1099.2675050435573
+        1235.533669486074,
+        1121.475835203959
       ],
       "size": [
         586.4129170279989,
         686.0355896418848
       ],
       "flags": {},
-      "order": 7,
-      "mode": 0,
+      "order": 12,
+      "mode": 4,
       "inputs": [
         {
           "name": "images",
@@ -371,10 +467,159 @@
         }
       ],
       "outputs": [],
+      "title": "Sampler Scheduler Matrix",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
       "widgets_values": []
+    },
+    {
+      "id": 16,
+      "type": "PreviewImage",
+      "pos": [
+        1317.8212566020425,
+        2422.2894985420116
+      ],
+      "size": [
+        586.4129170279989,
+        686.0355896418848
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 23
+        }
+      ],
+      "outputs": [],
+      "title": "Model Matrix",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 13,
+      "type": "EmptyLatentImage",
+      "pos": [
+        73.83538582904669,
+        2361.445960961291
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        896,
+        1152,
+        1
+      ]
+    },
+    {
+      "id": 12,
+      "type": "ModelMatrixLab",
+      "pos": [
+        645.1103132010634,
+        2421.681847892186
+      ],
+      "size": [
+        462.5216843315013,
+        1809.1883183159807
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 20
+        },
+        {
+          "name": "clip",
+          "shape": 7,
+          "type": "CLIP",
+          "link": 22
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "grid_image",
+          "type": "IMAGE",
+          "links": [
+            23
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ModelMatrixLab"
+      },
+      "widgets_values": [
+        "A raw phone photo of an 25 years old Colombian-Japanese woman with bobcut dark hair, medium warm tan skin with a natural matte texture, and a small thin hoop nose ring in her right nostril. She has a curvy Instagram-model body with an athletic waist, wide hips, full thighs, sculpted proportions, and large breasts.\n\nShe is sitting beside a window, one knee raised, wearing an elegant black silk halter wrap dress inspired by a luxury evening gown: deep plunging neckline, soft draped fabric crossing around the waist, glossy black satin-silk texture, fitted torso, flowing skirt, and a high side slit revealing one thigh. The dress looks expensive, smooth, slightly reflective, and naturally wrinkled where the fabric folds around her body.\n\nHer expression is seductive, intense, and confident, with a direct composed gaze into the camera. The scene is set in a tower room with red curtains, an old wooden desk, scattered spellbooks, candles, and antique details. The lighting is warm red lamp light with a dark night window behind her, creating dramatic contrast on the black silk dress.\n\nNatural skin texture, realistic uneven lighting, imperfect details, candid handheld framing, raw phone photo, no beauty retouching, no glamour studio look.",
+        "",
+        568148328078253,
+        "randomize",
+        10,
+        1,
+        1,
+        "euler_flow",
+        "zimage_turbo",
+        "checkpoint | zitZEUSONE_v10.safetensors",
+        "checkpoint | zImageTurbo_v10.safetensors",
+        "checkpoint | zitBadmilkFocus_v10.safetensors",
+        "checkpoint | wkbZIT_fp8V10.safetensors",
+        "checkpoint | whiplashNSFW_v50FilmicFisheyeZIT.safetensors",
+        "checkpoint | fixedZturbo_tertium.safetensors",
+        "checkpoint | sophosZit_v11.safetensors",
+        "checkpoint | cielbleuZIT_v1.safetensors",
+        "checkpoint | sickOllie_v1.safetensors",
+        "checkpoint | reazit_v10FP8.safetensors",
+        "checkpoint | bordella_v20.safetensors",
+        "checkpoint | dafZIT_gamma.safetensors",
+        "checkpoint | bigLoveZ_zt1.safetensors",
+        "checkpoint | zEpicrealism_turboV1Fp8.safetensors",
+        "checkpoint | zimageTurboNSFWBy_2602NSFWBF16.safetensors",
+        "checkpoint | moodyProMix_zitV13FP8.safetensors",
+        "checkpoint | divingZImageTurbo_v60Fp16.safetensors",
+        "checkpoint | pornmasterZImage_turboV35Fp8.safetensors",
+        "checkpoint | zImageTurboNSFW_82BF16FP8.safetensors",
+        "checkpoint | darkBeast_dbzit9DIMRclaw.safetensors",
+        "default",
+        3,
+        1,
+        22,
+        10,
+        "white",
+        true,
+        true,
+        true,
+        true
+      ]
     }
   ],
   "links": [
@@ -441,19 +686,51 @@
       9,
       0,
       "CLIP"
+    ],
+    [
+      20,
+      13,
+      0,
+      12,
+      0,
+      "LATENT"
+    ],
+    [
+      21,
+      14,
+      0,
+      12,
+      2,
+      "VAE"
+    ],
+    [
+      22,
+      15,
+      0,
+      12,
+      1,
+      "CLIP"
+    ],
+    [
+      23,
+      12,
+      0,
+      16,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.9229599817706413,
+      "scale": 1.015255979947709,
       "offset": [
-        1028.9801016231872,
-        -895.579296297689
+        125.38375815942595,
+        -2096.0447889369275
       ]
     },
-    "frontendVersion": "1.41.21"
+    "frontendVersion": "1.45.15"
   },
   "version": 0.4
 }

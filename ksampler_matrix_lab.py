@@ -1,5 +1,6 @@
 import copy
 import gc
+import math
 import textwrap
 
 import numpy as np
@@ -9,7 +10,8 @@ from PIL import Image, ImageDraw, ImageFont
 import comfy.model_management
 import comfy.samplers
 import comfy.utils
-from nodes import common_ksampler
+import folder_paths
+from nodes import CheckpointLoaderSimple, UNETLoader, common_ksampler
 
 
 MAX_SEED = 0xFFFFFFFFFFFFFFFF
@@ -17,7 +19,10 @@ DEFAULT_MAX_COMBINATIONS = 100
 NONE_OPTION = "None"
 SAMPLER_SLOT_COUNT = 9
 SCHEDULER_SLOT_COUNT = 9
+MODEL_SLOT_COUNT = 20
 UNKNOWN_LABEL = "unknown"
+CHECKPOINT_PREFIX = "checkpoint | "
+DIFFUSION_PREFIX = "diffusion | "
 
 
 def collect_selected_slots(values):
@@ -40,6 +45,80 @@ def get_available_samplers():
 
 def get_available_schedulers():
     return list(comfy.samplers.KSampler.SCHEDULERS)
+
+
+def get_available_model_choices():
+    checkpoints = [f"{CHECKPOINT_PREFIX}{name}" for name in folder_paths.get_filename_list("checkpoints")]
+    diffusion_models = [
+        f"{DIFFUSION_PREFIX}{name}"
+        for name in folder_paths.get_filename_list("diffusion_models")
+    ]
+    return checkpoints + diffusion_models
+
+
+def parse_model_selection(selection):
+    if selection.startswith(CHECKPOINT_PREFIX):
+        return "checkpoint", selection[len(CHECKPOINT_PREFIX):]
+    if selection.startswith(DIFFUSION_PREFIX):
+        return "diffusion", selection[len(DIFFUSION_PREFIX):]
+    raise ValueError(f"Unsupported model selection: {selection}")
+
+
+def load_model_selection(selection, diffusion_weight_dtype):
+    source_type, model_name = parse_model_selection(selection)
+    if source_type == "checkpoint":
+        model, clip, vae = CheckpointLoaderSimple().load_checkpoint(model_name)
+        return model, clip, vae, source_type, model_name
+
+    model = UNETLoader().load_unet(model_name, diffusion_weight_dtype)[0]
+    return model, None, None, source_type, model_name
+
+
+def encode_prompt_text(clip, text):
+    if not is_valid_clip(clip):
+        raise RuntimeError(
+            "No compatible CLIP is available. Connect the optional CLIP input "
+            "when comparing standalone diffusion models."
+        )
+    tokens = clip.tokenize(text)
+    return clip.encode_from_tokens_scheduled(tokens)
+
+
+def is_valid_clip(clip):
+    if clip is None:
+        return False
+    return callable(getattr(clip, "tokenize", None)) and callable(
+        getattr(clip, "encode_from_tokens_scheduled", None)
+    )
+
+
+def is_valid_vae(vae):
+    if vae is None or not callable(getattr(vae, "decode", None)):
+        return False
+
+    validator = getattr(vae, "throw_exception_if_invalid", None)
+    if callable(validator):
+        try:
+            validator()
+        except RuntimeError:
+            return False
+    return True
+
+
+def select_clip(checkpoint_clip, external_clip):
+    if is_valid_clip(checkpoint_clip):
+        return checkpoint_clip
+    if is_valid_clip(external_clip):
+        return external_clip
+    return None
+
+
+def select_vae(checkpoint_vae, external_vae):
+    if is_valid_vae(checkpoint_vae):
+        return checkpoint_vae
+    if is_valid_vae(external_vae):
+        return external_vae
+    return None
 
 
 def validate_selected_names(selected, available, label):
@@ -496,6 +575,162 @@ def compose_grid(
     return grid
 
 
+def build_model_run_header_text(sampler_name, scheduler, steps, cfg, denoise):
+    return (
+        "Model Matrix Lab Benchmark\n"
+        f"Sampler: {sampler_name} | Scheduler: {scheduler}\n"
+        f"Steps: {steps} | CFG: {float(cfg):g} | Denoise: {float(denoise):g}"
+    )
+
+
+def compose_model_error_cell(size, model_label, error_message, background, font):
+    cell = Image.new("RGB", size, resolve_background(background))
+    draw = ImageDraw.Draw(cell)
+    fill = (210, 76, 68) if background == "white" else (255, 146, 132)
+    short_error = str(error_message).replace("\n", " ")[:180]
+    draw_centered_text(
+        draw,
+        (8, 8, size[0] - 16, size[1] - 16),
+        f"ERROR\n{model_label}\n{short_error}",
+        font,
+        fill,
+    )
+    return cell
+
+
+def compose_model_grid(
+    entries,
+    latent_image,
+    sampler_name,
+    scheduler,
+    steps,
+    cfg,
+    denoise,
+    grid_columns,
+    cell_scale,
+    font_size,
+    padding,
+    background,
+    show_grid_lines,
+    show_cell_labels,
+    show_run_header,
+):
+    font = load_font(font_size)
+    label_font = load_font(max(9, int(font_size * 0.82)))
+    first_image = next(
+        (entry["image"] for entry in entries if entry.get("image") is not None),
+        None,
+    )
+    base_width, base_height = (
+        first_image.size
+        if first_image is not None
+        else placeholder_size_from_latent(latent_image)
+    )
+
+    cell_width = max(1, int(round(base_width * cell_scale)))
+    cell_height = max(1, int(round(base_height * cell_scale)))
+    cell_label_height = max(42, int(font_size * 2.7)) if show_cell_labels else 0
+    cell_block_height = cell_height + cell_label_height
+
+    columns = max(1, min(int(grid_columns), len(entries)))
+    rows = math.ceil(len(entries) / columns)
+    background_rgb = resolve_background(background)
+    label_background_rgb = label_background_for_background(background)
+    text_rgb = text_color_for_background(background)
+    line_rgb = line_color_for_background(background)
+
+    total_width = columns * cell_width + (columns + 1) * padding
+    header_text = build_model_run_header_text(
+        sampler_name,
+        scheduler,
+        steps,
+        cfg,
+        denoise,
+    )
+    if show_run_header:
+        measure = ImageDraw.Draw(Image.new("RGB", (1, 1)))
+        header_text_height = wrapped_text_height(
+            measure,
+            header_text,
+            font,
+            max(1, total_width - 2 * padding),
+        )
+        run_header_height = max(70, header_text_height + 2 * padding)
+    else:
+        run_header_height = 0
+
+    total_height = run_header_height + rows * cell_block_height + (rows + 1) * padding
+    grid = Image.new("RGB", (total_width, total_height), background_rgb)
+    draw = ImageDraw.Draw(grid)
+
+    if show_run_header:
+        draw.rectangle(
+            (0, 0, total_width - 1, run_header_height - 1),
+            fill=label_background_rgb,
+        )
+        draw_centered_text(
+            draw,
+            (padding, padding, total_width - 2 * padding, run_header_height - 2 * padding),
+            header_text,
+            font,
+            text_rgb,
+        )
+        if show_grid_lines:
+            draw.line(
+                (0, run_header_height - 1, total_width, run_header_height - 1),
+                fill=line_rgb,
+                width=1,
+            )
+
+    for index, entry in enumerate(entries):
+        row = index // columns
+        column = index % columns
+        x = padding + column * (cell_width + padding)
+        y = run_header_height + padding + row * (cell_block_height + padding)
+
+        if show_cell_labels:
+            draw.rectangle(
+                (x, y, x + cell_width - 1, y + cell_label_height - 1),
+                fill=label_background_rgb,
+            )
+            draw_centered_text(
+                draw,
+                (x + 4, y + 3, cell_width - 8, cell_label_height - 6),
+                f"Model: {entry['label']}",
+                label_font,
+                text_rgb,
+            )
+            if show_grid_lines:
+                draw.line(
+                    (x, y + cell_label_height - 1, x + cell_width - 1, y + cell_label_height - 1),
+                    fill=line_rgb,
+                    width=1,
+                )
+
+        if entry.get("image") is not None:
+            image = entry["image"]
+            if image.size != (cell_width, cell_height):
+                image = image.resize((cell_width, cell_height), Image.Resampling.LANCZOS)
+        else:
+            image = compose_model_error_cell(
+                (cell_width, cell_height),
+                entry["label"],
+                entry.get("error", "Unknown error"),
+                background,
+                label_font,
+            )
+
+        grid.paste(image, (x, y + cell_label_height))
+        if show_grid_lines:
+            draw.rectangle(
+                (x, y, x + cell_width - 1, y + cell_block_height - 1),
+                outline=line_rgb,
+                width=1,
+            )
+
+    return grid
+
+
 class KSamplerMatrixLab:
     @classmethod
     def INPUT_TYPES(cls):
@@ -696,10 +931,266 @@ class KSamplerMatrixLab:
         return (pil_to_tensor(grid),)
 
 
+class ModelMatrixLab:
+    @classmethod
+    def INPUT_TYPES(cls):
+        model_choices = [NONE_OPTION] + get_available_model_choices()
+        available_models = get_available_model_choices()
+        samplers = get_available_samplers()
+        schedulers = get_available_schedulers()
+
+        required = {
+            "latent_image": ("LATENT",),
+            "positive_text": (
+                "STRING",
+                {
+                    "default": "",
+                    "multiline": True,
+                    "dynamicPrompts": True,
+                    "tooltip": "The same positive prompt is encoded for every selected model.",
+                },
+            ),
+            "negative_text": (
+                "STRING",
+                {
+                    "default": "",
+                    "multiline": True,
+                    "dynamicPrompts": True,
+                    "tooltip": "The same negative prompt is encoded for every selected model.",
+                },
+            ),
+            "seed": (
+                "INT",
+                {
+                    "default": 0,
+                    "min": 0,
+                    "max": MAX_SEED,
+                    "control_after_generate": True,
+                },
+            ),
+            "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
+            "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0, "step": 0.1}),
+            "denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+            "sampler_name": (
+                samplers,
+                {"tooltip": "The sampler used for every selected model."},
+            ),
+            "scheduler": (
+                schedulers,
+                {"tooltip": "The scheduler used for every selected model."},
+            ),
+        }
+
+        for index in range(1, MODEL_SLOT_COUNT + 1):
+            required[f"model_{index:02d}"] = (
+                model_choices,
+                {
+                    "default": available_models[0] if index == 1 and available_models else NONE_OPTION,
+                    "tooltip": "Select a checkpoint or standalone diffusion model, or None to ignore this slot.",
+                },
+            )
+
+        required.update(
+            {
+                "diffusion_weight_dtype": (
+                    ["default", "fp8_e4m3fn", "fp8_e4m3fn_fast", "fp8_e5m2"],
+                    {
+                        "default": "default",
+                        "advanced": True,
+                        "tooltip": "Weight dtype used only for standalone diffusion models.",
+                    },
+                ),
+                "grid_columns": ("INT", {"default": 3, "min": 1, "max": 20}),
+                "cell_scale": ("FLOAT", {"default": 1.0, "min": 0.05, "max": 4.0, "step": 0.05}),
+                "font_size": ("INT", {"default": 22, "min": 8, "max": 96}),
+                "padding": ("INT", {"default": 10, "min": 0, "max": 96}),
+                "background": (["white", "gray", "black"], {"default": "white"}),
+                "show_grid_lines": ("BOOLEAN", {"default": True}),
+                "show_cell_labels": (
+                    "BOOLEAN",
+                    {
+                        "default": True,
+                        "tooltip": "Show the model source and filename above every grid cell.",
+                    },
+                ),
+                "show_run_header": (
+                    "BOOLEAN",
+                    {
+                        "default": True,
+                        "tooltip": "Show sampler, scheduler, steps, CFG, and denoise above the grid.",
+                    },
+                ),
+                "continue_on_error": ("BOOLEAN", {"default": True}),
+            }
+        )
+
+        return {
+            "required": required,
+            "optional": {
+                "clip": (
+                    "CLIP",
+                    {
+                        "tooltip": "Required for standalone diffusion models or checkpoints without an embedded CLIP.",
+                    },
+                ),
+                "vae": (
+                    "VAE",
+                    {
+                        "tooltip": "Required for standalone diffusion models or checkpoints without an embedded VAE.",
+                    },
+                ),
+            },
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("grid_image",)
+    FUNCTION = "generate_model_matrix"
+    CATEGORY = "ComfyUI-KSampler-Matrix-Lab"
+    DESCRIPTION = "Compares selected checkpoints and diffusion models with one shared sampler and scheduler, then returns a labeled image grid."
+
+    def generate_model_matrix(
+        self,
+        latent_image,
+        positive_text,
+        negative_text,
+        seed,
+        steps,
+        cfg,
+        denoise,
+        sampler_name,
+        scheduler,
+        diffusion_weight_dtype,
+        grid_columns,
+        cell_scale,
+        font_size,
+        padding,
+        background,
+        show_grid_lines,
+        show_cell_labels,
+        show_run_header,
+        continue_on_error,
+        clip=None,
+        vae=None,
+        **model_slots,
+    ):
+        selected_models = collect_selected_slots(
+            model_slots.get(f"model_{index:02d}")
+            for index in range(1, MODEL_SLOT_COUNT + 1)
+        )
+        validate_selected_names(
+            selected_models,
+            get_available_model_choices(),
+            "model",
+        )
+
+        progress = comfy.utils.ProgressBar(len(selected_models))
+        entries = []
+
+        for selection in selected_models:
+            loaded_model = None
+            loaded_clip = None
+            loaded_vae = None
+            effective_clip = None
+            effective_vae = None
+            positive = None
+            negative = None
+            sampled_latent = None
+            decoded_images = None
+            source_type, model_name = parse_model_selection(selection)
+            source_label = "Checkpoint" if source_type == "checkpoint" else "Diffusion"
+            display_label = f"{source_label}: {model_name}"
+
+            try:
+                (
+                    loaded_model,
+                    loaded_clip,
+                    loaded_vae,
+                    _,
+                    _,
+                ) = load_model_selection(selection, diffusion_weight_dtype)
+
+                effective_clip = select_clip(loaded_clip, clip)
+                effective_vae = select_vae(loaded_vae, vae)
+                if not is_valid_vae(effective_vae):
+                    raise RuntimeError(
+                        "No compatible VAE is available. Connect the optional VAE input "
+                        "when a selected checkpoint does not contain a valid VAE or when "
+                        "comparing standalone diffusion models."
+                    )
+
+                positive = encode_prompt_text(effective_clip, positive_text)
+                negative = encode_prompt_text(effective_clip, negative_text)
+                sampled_latent = run_single_sample(
+                    loaded_model,
+                    seed,
+                    steps,
+                    cfg,
+                    sampler_name,
+                    scheduler,
+                    positive,
+                    negative,
+                    latent_image,
+                    denoise,
+                )
+                decoded_images = decode_latent_to_image(effective_vae, sampled_latent)
+                entries.append(
+                    {
+                        "label": display_label,
+                        "image": tensor_to_pil(decoded_images),
+                    }
+                )
+            except Exception as exc:
+                if not continue_on_error:
+                    raise RuntimeError(
+                        f"Model Matrix Lab failed for '{display_label}': {exc}"
+                    ) from exc
+                entries.append(
+                    {
+                        "label": display_label,
+                        "image": None,
+                        "error": str(exc),
+                    }
+                )
+            finally:
+                loaded_model = None
+                loaded_clip = None
+                loaded_vae = None
+                effective_clip = None
+                effective_vae = None
+                positive = None
+                negative = None
+                sampled_latent = None
+                decoded_images = None
+                progress.update(1)
+                gc.collect()
+                comfy.model_management.soft_empty_cache()
+
+        grid = compose_model_grid(
+            entries,
+            latent_image,
+            sampler_name,
+            scheduler,
+            steps,
+            cfg,
+            denoise,
+            grid_columns,
+            cell_scale,
+            font_size,
+            padding,
+            background,
+            show_grid_lines,
+            show_cell_labels,
+            show_run_header,
+        )
+        return (pil_to_tensor(grid),)
+
+
 NODE_CLASS_MAPPINGS = {
     "KSamplerMatrixLab": KSamplerMatrixLab,
+    "ModelMatrixLab": ModelMatrixLab,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "KSamplerMatrixLab": "KSampler Matrix Lab",
+    "ModelMatrixLab": "Model Matrix Lab",
 }
