@@ -1,33 +1,12 @@
 # ComfyUI KSampler Matrix Lab
 
-ComfyUI KSampler Matrix Lab provides two custom nodes for visual benchmark grids:
+ComfyUI KSampler Matrix Lab adds custom ComfyUI nodes for generating labeled sampler, scheduler and model comparison grids so ComfyUI users can evaluate settings visually without building the grid by hand.
 
-- `KSampler Matrix Lab` compares sampler and scheduler combinations with one model.
-- `Model Matrix Lab` compares multiple installed models with one sampler and scheduler.
+It is for artists, prompt testers and model evaluators who need side-by-side output comparisons inside a normal ComfyUI workflow.
 
-Both nodes run tests sequentially and return one labeled `IMAGE` output that can be connected to `Preview Image` or `Save Image`.
+## Preview
 
-## Features
-
-- Compare sampler and scheduler combinations in a single grid.
-- Dynamic sampler and scheduler dropdowns from the local ComfyUI installation.
-- Up to 9 sampler slots and 9 scheduler slots.
-- `None` option for unused sampler or scheduler slots.
-- Sequential generation to avoid large all-at-once batches.
-- Same-seed comparison mode.
-- Increment-per-cell seed mode.
-- Per-cell labels with sampler and scheduler names.
-- Top run header with model, VAE, CLIP, steps, CFG, and denoise metadata.
-- Error placeholder cells when `continue_on_error` is enabled.
-- Safety limit for maximum combinations.
-- Compare up to 20 checkpoints or standalone diffusion models.
-- Automatically populated model dropdowns from local ComfyUI model folders.
-- Shared prompt, sampler, scheduler, seed, steps, CFG, denoise, and latent for model comparisons.
-- Configurable model grid column count.
-
-## Screenshots
-
-### Node
+### KSampler Matrix Lab Node
 
 ![KSampler Matrix Lab node](assets/ksampler-matrix-lab-node.png)
 
@@ -35,13 +14,36 @@ Both nodes run tests sequentially and return one labeled `IMAGE` output that can
 
 ![Example workflow](assets/ksampler-matrix-lab-workflow.png)
 
-### Output Grid
+### Sampler / Scheduler Output Grid
 
 ![Output grid](assets/ksampler-matrix-lab-output-grid.jpg)
 
+### Model Matrix Lab Node
+
+![Model Matrix Lab node](assets/ksampler-matrix-lab-model-node.png)
+
+### Model Output Grid
+
+![Model output grid](assets/ksampler-matrix-lab-model-grid.jpg)
+
+## Features
+
+- `KSampler Matrix Lab` node for sampler and scheduler comparison grids.
+- `Model Matrix Lab` node for comparing multiple installed checkpoints or diffusion models.
+- Dynamic sampler and scheduler dropdowns from the local ComfyUI installation.
+- Up to 9 sampler slots and 9 scheduler slots.
+- Up to 20 model slots for model comparisons.
+- `None` options for unused slots.
+- Sequential generation to avoid large all-at-once batches.
+- Same-seed and increment-per-cell seed modes.
+- Per-cell labels and optional top metadata header.
+- Error placeholder cells when `continue_on_error` is enabled.
+- Safety limit for maximum combinations.
+- Included example workflow JSON.
+
 ## Installation
 
-Clone this repository into your ComfyUI `custom_nodes` directory:
+Clone the repository into ComfyUI's `custom_nodes` directory:
 
 ```bash
 cd ComfyUI/custom_nodes
@@ -50,184 +52,42 @@ git clone https://github.com/btitkin/ComfyUI-KSampler-Matrix-Lab.git
 
 Restart ComfyUI after installation.
 
-## Nodes
+Installation instructions are based on the current repository structure and should be verified in your local ComfyUI environment.
 
-The package adds:
+## Quick Start
 
-```text
-KSampler Matrix Lab
-Model Matrix Lab
-```
+1. Install the repository into `ComfyUI/custom_nodes`.
+2. Restart ComfyUI.
+3. Add either `KSampler Matrix Lab` or `Model Matrix Lab` from the `ComfyUI-KSampler-Matrix-Lab` category.
+4. Connect the node to a normal generation workflow.
+5. Send the single `IMAGE` output to `Preview Image` or `Save Image`.
 
-Category:
-
-```text
-ComfyUI-KSampler-Matrix-Lab
-```
-
-Output:
-
-```text
-IMAGE
-```
-
-## Included Workflow
-
-The example workflow contains ready-to-use setups for both nodes:
+Included workflow:
 
 ```text
 Workflows/KSamplerMatrixLab_Workflow.json
 ```
 
-Drag the JSON file into ComfyUI or use `Workflow > Open` to load it.
+Drag the JSON file into ComfyUI or open it through ComfyUI's workflow menu.
 
-## KSampler Matrix Lab Workflow
+## Examples / Use Cases
 
-Use the node with a standard ComfyUI generation workflow:
+- Compare sampler and scheduler combinations with one prompt, model, seed and latent.
+- Compare checkpoints or standalone diffusion models with shared generation settings.
+- Produce visual grids for model notes, prompt tests or art-direction reviews.
+- Keep failed combinations visible in the output grid while continuing the rest of the run.
 
-```text
-Load Checkpoint / model loader
-CLIP Text Encode positive
-CLIP Text Encode negative
-Empty Latent Image
-KSampler Matrix Lab
-Preview Image or Save Image
-```
+## Roadmap
 
-Connect:
+- More example workflows.
+- Clearer compatibility notes for custom model loaders.
+- Additional output-layout options if they prove useful in real ComfyUI use.
 
-- `MODEL` to `model`
-- positive conditioning to `positive`
-- negative conditioning to `negative`
-- latent to `latent_image`
-- `VAE` to `vae`
+## Status
 
-## Model Matrix Lab
-
-`Model Matrix Lab` compares installed models using the same generation settings and prompt text.
-
-## Screenshots
-
-### Node
-
-![KSampler Matrix Lab Model node](assets/ksampler-matrix-lab-model-node.png)
-
-
-### Output Grid
-
-![Output grid](assets/ksampler-matrix-lab-model-grid.jpg)
-
-The node scans:
-
-```text
-ComfyUI/models/checkpoints
-ComfyUI/models/unet
-ComfyUI/models/diffusion_models
-```
-
-It provides model slots:
-
-```text
-model_01 ... model_20
-```
-
-Set unused slots to `None`. Model choices are labeled as either:
-
-```text
-checkpoint | filename
-diffusion | filename
-```
-
-Checkpoint selections use their embedded CLIP and VAE when available. Standalone diffusion models require compatible external `CLIP` and `VAE` connections. These optional connections are also used as fallbacks when a checkpoint does not contain its own CLIP or VAE.
-
-Use the text fields inside the node for the positive and negative prompts. This allows every checkpoint to encode the same text with its own text encoder.
-
-Connect:
-
-- `LATENT` to `latent_image`
-- a compatible external `CLIP` to the optional `clip` input when required
-- a compatible external `VAE` to the optional `vae` input when required
-
-All selected models use the same:
-
-- latent,
-- seed,
-- sampler,
-- scheduler,
-- steps,
-- CFG,
-- denoise.
-
-The output is a configurable model comparison grid with the model source and filename above each cell. The optional top header shows the shared sampler, scheduler, steps, CFG, and denoise settings.
-
-## Sampler and Scheduler Selection
-
-The node provides dropdown slots:
-
-```text
-sampler_01 ... sampler_09
-scheduler_01 ... scheduler_09
-```
-
-Set unused slots to:
-
-```text
-None
-```
-
-Duplicate sampler or scheduler selections are ignored after the first occurrence.
-
-## Grid Layout
-
-The final image grid uses:
-
-- columns for schedulers,
-- rows for samplers,
-- generated images as cells,
-- optional grid lines,
-- repeated per-cell sampler/scheduler labels,
-- an optional top metadata header.
-
-The top metadata header includes:
-
-```text
-Model
-VAE
-CLIP
-Steps
-CFG
-Denoise
-```
-
-Model, VAE, and CLIP names are inferred from the ComfyUI workflow when possible. Some custom loaders may not expose enough metadata, in which case the header may show `unknown`.
-
-## Seed Modes
-
-```text
-same_seed_for_all
-```
-
-Uses the same seed for every cell. This is best for direct sampler/scheduler comparison.
-
-```text
-increment_per_cell
-```
-
-Uses `seed + cell_index` for each cell. This is useful for quick variation previews.
-
-## Error Handling
-
-When `continue_on_error` is enabled, a failed sampler/scheduler combination or model produces an error placeholder cell and the rest of the matrix continues.
-
-When disabled, the node stops on the first failed test.
-
-## Notes
-
-- Generation is sequential by design.
-- Very large grids can use significant RAM during final image composition.
-- If the input latent batch size is greater than 1, the first decoded image is used for each grid cell.
-- Full behavior depends on the samplers and schedulers available in the local ComfyUI installation.
+Usable: the repository contains ComfyUI node mappings, an example workflow and preview images. Runtime behavior still depends on the user's ComfyUI version, installed models, samplers and custom nodes.
 
 ## License
 
-MIT
+MIT. See [LICENSE](./LICENSE).
+
